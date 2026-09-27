@@ -2,7 +2,23 @@
   "name": "@feedback-loop/api",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/serve.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
   "dependencies": {
-    "@feedback-loop/ai-gateway": "workspace:*"
+    "@feedback-loop/ai-gateway": "workspace:*",
+    "@hono/node-server": "^1.13.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "hono": "^4.6.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
   }
 }

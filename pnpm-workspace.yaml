@@ -1,0 +1,5 @@
+packages:
+  - widget
+  - console
+  - api
+  - packages/*

@@ -1,12 +1,11 @@
-import type { CompletionRequest, CompletionResult, GatewayAdapter } from './types.js'
+import type { CompletionRequest, GatewayAdapter } from './types.js'
 import { estimateCostUsd } from './pricing.js'
 
 // Vercel AI Gateway also exposes an OpenAI-compatible chat/completions
 // endpoint, billed to the Vercel account instead of a separate API key.
 export function createVercelAiGatewayAdapter(apiKey: string): GatewayAdapter {
   return {
-    id: 'vercel-ai-gateway',
-    async complete(req: CompletionRequest): Promise<CompletionResult> {
+    async complete(model: string, req: CompletionRequest) {
       const res = await fetch('https://ai-gateway.vercel.sh/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -14,8 +13,8 @@ export function createVercelAiGatewayAdapter(apiKey: string): GatewayAdapter {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: req.model,
-          max_tokens: req.maxTokens ?? 4096,
+          model,
+          max_tokens: req.maxTokens ?? 8192,
           messages: [
             ...(req.system ? [{ role: 'system', content: req.system }] : []),
             ...req.messages,
@@ -28,7 +27,7 @@ export function createVercelAiGatewayAdapter(apiKey: string): GatewayAdapter {
       if (!res.ok) {
         throw new Error(`Vercel AI Gateway request failed: ${res.status} ${await res.text()}`)
       }
-      const data = await res.json() as {
+      const data = (await res.json()) as {
         choices: Array<{ message: { content: string } }>
         usage: { prompt_tokens: number; completion_tokens: number }
       }
@@ -38,9 +37,7 @@ export function createVercelAiGatewayAdapter(apiKey: string): GatewayAdapter {
         text: data.choices[0]?.message?.content ?? '',
         inputTokens,
         outputTokens,
-        costUsd: estimateCostUsd(req.model, inputTokens, outputTokens),
-        gateway: 'vercel-ai-gateway',
-        model: req.model,
+        costUsd: estimateCostUsd(model, inputTokens, outputTokens),
       }
     },
   }

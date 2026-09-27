@@ -1,10 +1,4 @@
 {
   "name": "feedback-loop",
-  "private": true,
-  "workspaces": [
-    "widget",
-    "console",
-    "api",
-    "packages/*"
-  ]
+  "private": true
 }

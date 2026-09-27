@@ -18,5 +18,10 @@ particular).
 
 ## Status
 
-Repo scaffold: schema, gateway adapter package, and workspace layout are in
-place. `widget/`, `api/` and `console/` are not yet implemented.
+`packages/ai-gateway` and `api/` are implemented: ingestion, routing,
+triage (via OpenRouter, Vercel AI Gateway, or a direct BYOK call to
+Anthropic/OpenAI), and cost-ledger recording. See `api/README.md` for setup
+and routes. `widget/` and `console/` are not yet implemented — the API's
+admin routes exist but currently need a shared bearer token (see
+`ARCHITECTURE.md` → "Known gap: admin auth is a stopgap") until the console
+brings real auth.

@@ -21,12 +21,16 @@ scoped/expiring approval tokens are worth reusing patterns from it.
   the fix-agent workflow on approval.
 - **`console/`** — admin web app (Next.js): cross-project feedback queue,
   triage/routing management, per-project model+effort rules, spend dashboard.
-- **`packages/ai-gateway/`** — provider-agnostic adapter over OpenRouter and
-  Vercel AI Gateway. Routing rules name a `(gateway, model, effort)` triple;
-  the router dispatches to whichever adapter that names. A third gateway is
-  one more adapter, not a rewrite.
+- **`packages/ai-gateway/`** — provider-agnostic adapter over OpenRouter,
+  Vercel AI Gateway, and direct (BYOK) calls to Anthropic or OpenAI's own
+  APIs. Routing rules name a `(gateway, model, effort)` triple — or
+  `(direct, provider, model, effort)` to bypass the gateway entirely and
+  bill a project's own provider account — and the router dispatches to
+  whichever adapter that names. A third gateway or direct provider is one
+  more adapter, not a rewrite.
 - **`db/schema.sql`** — Postgres schema (Supabase): `projects`,
-  `feedback_items`, `routing_rules`, `cost_ledger`, `api_keys`.
+  `feedback_items`, `routing_rules`, `cost_ledger`, `api_keys`,
+  `provider_credentials` (encrypted BYOK keys).
 
 ## Data flow
 
@@ -57,4 +61,15 @@ state doesn't depend on that mirror.
 Supabase (Postgres + auth, free tier) for the database and console auth;
 Vercel (free Hobby tier) for the console and API; OpenRouter and Vercel AI
 Gateway both wired in as gateway adapters so routing rules can pick either
-per project/category rather than being locked to one.
+per project/category rather than being locked to one; direct Anthropic/OpenAI
+adapters alongside them for projects that want to use their own provider
+account instead of a gateway.
+
+## Known gap: admin auth is a stopgap
+
+`api/`'s `/projects*` routes are currently gated by a single shared
+`ADMIN_API_KEY` bearer token (see `api/README.md`), not per-user auth. This
+is deliberate scope-bounding, not an oversight: real auth (Supabase Auth +
+RLS, scoped to which projects a user can manage) belongs with the console,
+since there's no UI yet to log into. Replace this before exposing the API
+beyond trusted operators.
