@@ -1,0 +1,8 @@
+{
+  "name": "@feedback-loop/api",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@feedback-loop/ai-gateway": "workspace:*"
+  }
+}
